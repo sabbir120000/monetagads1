@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSR - Ad Rotator Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Monetag SDKs (নতুন ৫টি আইডি আপডেট করা হয়েছে) -->
+    <script src='//libtl.com/sdk.js' data-zone='11246679' data-sdk='show_11246679'></script>
+    <script src='//libtl.com/sdk.js' data-zone='11246676' data-sdk='show_11246676'></script>
+    <script src='//libtl.com/sdk.js' data-zone='11246672' data-sdk='show_11246672'></script>
+    <script src='//libtl.com/sdk.js' data-zone='11248120' data-sdk='show_11248120'></script>
+    <script src='//libtl.com/sdk.js' data-zone='11246665' data-sdk='show_11246665'></script>
+
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .card { background: #ffffff; border-radius: 28px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06); transition: 0.2s ease; cursor: pointer; }
+        .card:active { transform: scale(0.97); }
+        .dynamic-island { background: #0f172a; color: white; border-radius: 50px; width: 170px; height: 48px; position: absolute; top: 25px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; transition: 0.4s ease; z-index: 50; }
+        .dynamic-island.active { width: 92%; max-width: 360px; height: 85px; border-radius: 28px; padding: 0 20px; justify-content: space-between; }
+        .timer-circle { width: 38px; height: 38px; border-radius: 50%; border: 3px solid #10b981; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+        .hidden { display: none; }
+        .opacity-low { opacity: 0.5; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div class="relative w-full max-w-md h-screen flex flex-col justify-between py-8 px-6">
+        
+        <!-- Dynamic Island -->
+        <div id="island" class="dynamic-island">
+            <div id="idleState" class="flex items-center gap-2 text-sm font-semibold">
+                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                System Active
+            </div>
+            <div id="activeState" class="hidden w-full flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div id="islandIcon" class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400">
+                        <i class="fas fa-sync-alt fa-spin"></i>
+                    </div>
+                    <div>
+                        <p id="islandTitle" class="text-[10px] uppercase text-gray-400 font-bold tracking-tighter">Current Zone</p>
+                        <p id="islandText" class="text-sm font-bold text-white">Loading...</p>
+                    </div>
+                </div>
+                <div id="islandAction"></div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="mt-24 text-center">
+            <h1 class="text-4xl font-black text-slate-800">Premium Bot</h1>
+            <div id="currentActiveID" class="text-[11px] mt-1 bg-slate-200 text-slate-600 px-3 py-1 rounded-full inline-block font-bold">READY TO START</div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex-1 flex flex-col justify-center gap-6">
+            
+            <button onclick="manualAd()" class="card p-5 flex items-center justify-between border-l-4 border-blue-500">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Watch Ad</h3>
+                        <p class="text-xs text-slate-500">Manual ID Rotation</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-slate-300"></i>
+            </button>
+
+            <div class="flex items-center gap-3">
+                <div class="h-px bg-gray-300 flex-1"></div>
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Automation</span>
+                <div class="h-px bg-gray-300 flex-1"></div>
+            </div>
+
+            <button onclick="enableAutoMode()" id="btnOn" class="card p-5 flex items-center justify-between border-l-4 border-emerald-500">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Auto Ads ON</h3>
+                        <p class="text-xs text-slate-500">Automatic ID Change</p>
+                    </div>
+                </div>
+            </button>
+
+            <button onclick="disableAutoMode()" id="btnOff" class="card p-5 flex items-center justify-between border-l-4 border-rose-500 opacity-low">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 text-2xl">
+                        <i class="fas fa-stop-circle"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Auto Ads OFF</h3>
+                        <p class="text-xs text-slate-500">Stop Automation</p>
+                    </div>
+                </div>
+            </button>
+
+        </div>
+
+        <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[3px]">
+            Developer MSR
+        </p>
+    </div>
+
+    <script>
+        // আপনার নতুন ৫টি অ্যাড জোন আইডি লিস্ট
+        const adZones = ['11246679', '11246676', '11246672', '11248120', '11246665'];
+        let countdownInterval = null;
+        let timeLeft = 10; // পরবর্তী অ্যাডের জন্য ১০ সেকেন্ড অপেক্ষা
+
+        // রোটেশন লজিক
+        function getNextZoneID() {
+            let currentIndex = localStorage.getItem('msr_zone_index') || 0;
+            currentIndex = parseInt(currentIndex);
+            
+            const selectedID = adZones[currentIndex];
+            
+            // পরবর্তী আইডি ইনডেক্স সেট করা
+            let nextIndex = (currentIndex + 1) % adZones.length;
+            localStorage.setItem('msr_zone_index', nextIndex);
+            
+            return selectedID;
+        }
+
+        window.onload = function() {
+            const isAuto = localStorage.getItem('msr_auto_status');
+            const currentID = getNextZoneID();
+            
+            document.getElementById("currentActiveID").innerText = "ACTIVE ID: " + currentID;
+
+            if(isAuto === 'true') {
+                document.getElementById("btnOn").classList.add("opacity-low");
+                document.getElementById("btnOff").classList.remove("opacity-low");
+                
+                activateIsland("Auto System", "Zone: " + currentID, "fas fa-sync-alt", true, true);
+                
+                // অ্যাড লোড করা
+                triggerAd(currentID);
+                startTimer();
+            }
+        };
+
+        function triggerAd(zoneId) {
+            const func = 'show_' + zoneId;
+            if (typeof window[func] === "function") {
+                window[func]();
+                console.log("Triggered: " + func);
+            } else {
+                // স্ক্রিপ্ট লোড না হলে ১ সেকেন্ড পর আবার চেষ্টা করবে
+                setTimeout(() => triggerAd(zoneId), 1000);
+            }
+        }
+
+        function manualAd() {
+            localStorage.setItem('msr_auto_status', 'false');
+            const zoneId = getNextZoneID();
+            document.getElementById("currentActiveID").innerText = "ACTIVE ID: " + zoneId;
+            
+            activateIsland("Manual Ad", "Zone: " + zoneId, "fas fa-play", false, false);
+            triggerAd(zoneId);
+            
+            setTimeout(resetIsland, 4000);
+        }
+
+        function enableAutoMode() {
+            localStorage.setItem('msr_auto_status', 'true');
+            location.reload(); 
+        }
+
+        function disableAutoMode() {
+            localStorage.setItem('msr_auto_status', 'false');
+            location.reload();
+        }
+
+        function startTimer() {
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                const timerEl = document.getElementById("timerDisplay");
+                if(timerEl) timerEl.innerText = timeLeft;
+
+                if(timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    location.reload(); // পেজ রিফ্রেশ হয়ে নতুন আইডি লোড হবে
+                }
+            }, 1000);
+        }
+
+        function activateIsland(title, text, icon, spin, showTimer) {
+            document.getElementById("island").classList.add("active");
+            document.getElementById("idleState").classList.add("hidden");
+            document.getElementById("activeState").classList.remove("hidden");
+            document.getElementById("islandTitle").innerText = title;
+            document.getElementById("islandText").innerText = text;
+            document.getElementById("islandIcon").innerHTML = `<i class="${icon} ${spin ? 'fa-spin' : ''}"></i>`;
+            
+            if(showTimer) {
+                document.getElementById("islandAction").innerHTML = `<div id="timerDisplay" class="timer-circle">${timeLeft}</div>`;
+            }
+        }
+
+        function resetIsland() {
+            document.getElementById("island").classList.remove("active");
+            document.getElementById("idleState").classList.remove("hidden");
+            document.getElementById("activeState").classList.add("hidden");
+        }
+    </script>
+</body>
+</html>

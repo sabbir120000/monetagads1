@@ -1,210 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSR - Ad Rotator Premium</title>
+    <title>Ad Bot - Professional Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Monetag SDKs (নতুন ৫টি আইডি আপডেট করা হয়েছে) -->
-    <script src='//libtl.com/sdk.js' data-zone='11283627' data-sdk='show_11283627'></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script><!-- Ad SDK -->
+    <script src="https://lovely-glow-forge.lovable.app/api/public/sdk.js?k=5dcbd7f4e55a4d175a07692a" data-sdk="5dcbd7f4e55a4d175a07692a"></script>
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        .card { background: #ffffff; border-radius: 28px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06); transition: 0.2s ease; cursor: pointer; }
-        .card:active { transform: scale(0.97); }
-        .dynamic-island { background: #0f172a; color: white; border-radius: 50px; width: 170px; height: 48px; position: absolute; top: 25px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; transition: 0.4s ease; z-index: 50; }
-        .dynamic-island.active { width: 92%; max-width: 360px; height: 85px; border-radius: 28px; padding: 0 20px; justify-content: space-between; }
-        .timer-circle { width: 38px; height: 38px; border-radius: 50%; border: 3px solid #10b981; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
-        .hidden { display: none; }
-        .opacity-low { opacity: 0.5; pointer-events: none; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #fdf2f8 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+        }
+
+        .island {
+            background: #ffffff;
+            border-radius: 50px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
+            transition: all 0.5s ease;
+            min-width: 180px;
+            margin: 0 auto 2rem;
+        }
+
+        .island.active {
+            width: 100%;
+            border-radius: 20px;
+        }
+
+        .btn-3d {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 0 rgba(226, 232, 240, 1);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .btn-3d:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 rgba(226, 232, 240, 1);
+        }
+
+        .disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
+        .timer-container {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-circle-svg {
+            position: absolute;
+            transform: rotate(-90deg);
+            width: 45px;
+            height: 45px;
+        }
+
+        circle {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .circle-bg {
+            stroke: #e2e8f0;
+        }
+
+        .circle-progress {
+            stroke: #4f46e5;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body>
-
-    <div class="relative w-full max-w-md h-screen flex flex-col justify-between py-8 px-6">
-        
-        <!-- Dynamic Island -->
-        <div id="island" class="dynamic-island">
-            <div id="idleState" class="flex items-center gap-2 text-sm font-semibold">
-                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                System Active
-            </div>
-            <div id="activeState" class="hidden w-full flex justify-between items-center">
+    <div class="glass-panel text-center"><!-- Status Island -->
+        <div id="island" class="island">
+            <div id="idleState" class="flex items-center gap-2"> <span id="statusText" class="text-xs font-bold text-slate-500 uppercase tracking-widest">System Ready</span></div>
+            <div id="activeState" class="hidden w-full flex justify-between items-center text-left">
                 <div class="flex items-center gap-3">
-                    <div id="islandIcon" class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400">
-                        <i class="fas fa-sync-alt fa-spin"></i>
-                    </div>
+                    <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600"><br></div>
                     <div>
-                        <p id="islandTitle" class="text-[10px] uppercase text-gray-400 font-bold tracking-tighter">Current Zone</p>
-                        <p id="islandText" class="text-sm font-bold text-white">Loading...</p>
+                        <h4 class="text-[10px] font-black text-indigo-500 uppercase">Auto Bot</h4>
+                        <p class="text-xs font-bold text-slate-700">Next Ad in...</p>
                     </div>
                 </div>
-                <div id="islandAction"></div>
+                <div class="timer-container"><svg class="timer-circle-svg" viewBox="0 0 36 36">&nbsp; &nbsp;</svg> <span id="timerText" class="text-[12px] font-black text-indigo-600 relative z-10">8</span></div>
             </div>
         </div>
-
-        <!-- Header -->
-        <div class="mt-24 text-center">
-            <h1 class="text-4xl font-black text-slate-800">Premium Bot</h1>
-            <div id="currentActiveID" class="text-[11px] mt-1 bg-slate-200 text-slate-600 px-3 py-1 rounded-full inline-block font-bold">READY TO START</div>
+        <div class="mb-10">
+            <h1 class="text-4xl font-extrabold text-indigo-600 mb-1">AD ENGINE</h1>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em]">Premium Automation</p>
         </div>
-
-        <!-- Buttons -->
-        <div class="flex-1 flex flex-col justify-center gap-6">
-            
-            <button onclick="manualAd()" class="card p-5 flex items-center justify-between border-l-4 border-blue-500">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="text-left">
-                        <h3 class="text-lg font-bold text-slate-800">Watch Ad</h3>
-                        <p class="text-xs text-slate-500">Manual ID Rotation</p>
-                    </div>
+        <div class="flex flex-col gap-4"><!-- Manual Play -->
+            <div id="manualBtn" onclick="manualAd()" class="btn-3d group">
+                <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white"><br></div>
+                <div class="text-left">
+                    <h3 class="text-md font-extrabold">Manual Play</h3>
+                    <p class="text-[11px] text-slate-400">Watch 1 Premium Ad</p>
                 </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </button>
-
-            <div class="flex items-center gap-3">
-                <div class="h-px bg-gray-300 flex-1"></div>
-                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Automation</span>
-                <div class="h-px bg-gray-300 flex-1"></div>
             </div>
-
-            <button onclick="enableAutoMode()" id="btnOn" class="card p-5 flex items-center justify-between border-l-4 border-emerald-500">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="text-left">
-                        <h3 class="text-lg font-bold text-slate-800">Auto Ads ON</h3>
-                        <p class="text-xs text-slate-500">Automatic ID Change</p>
-                    </div>
-                </div>
-            </button>
-
-            <button onclick="disableAutoMode()" id="btnOff" class="card p-5 flex items-center justify-between border-l-4 border-rose-500 opacity-low">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 text-2xl">
-                        <i class="fas fa-stop-circle"></i>
-                    </div>
-                    <div class="text-left">
-                        <h3 class="text-lg font-bold text-slate-800">Auto Ads OFF</h3>
-                        <p class="text-xs text-slate-500">Stop Automation</p>
-                    </div>
-                </div>
-            </button>
-
+            <div class="flex items-center gap-4 my-2">
+                <div class="h-[1px] bg-slate-200 flex-1"><br></div><span class="text-[9px] font-bold text-slate-300">AUTO MODE</span>
+                <div class="h-[1px] bg-slate-200 flex-1"><br></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div id="btnOn" onclick="enableAutoMode()" class="btn-3d flex-col py-6"> <span class="text-sm font-black text-emerald-600">START AUTO</span></div>
+                <div id="btnOff" onclick="disableAutoMode()" class="btn-3d flex-col py-6 disabled"> <span class="text-sm font-black text-rose-500">STOP BOT</span></div>
+            </div>
         </div>
-
-        <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[3px]">
-            Developer MSR
-        </p>
     </div>
-
     <script>
-        // আপনার নতুন ৫টি অ্যাড জোন আইডি লিস্ট
-        const adZones = [ '11283627'];
+        const tg = window.Telegram?.WebApp;
+        let timeLeft = 8;
         let countdownInterval = null;
-        let timeLeft = 10; // পরবর্তী অ্যাডের জন্য ১০ সেকেন্ড অপেক্ষা
-
-        // রোটেশন লজিক
-        function getNextZoneID() {
-            let currentIndex = localStorage.getItem('msr_zone_index') || 0;
-            currentIndex = parseInt(currentIndex);
+        
+        // মূল অ্যাড ফাংশন
+        function triggerAd() {
+            const userId = tg?.initDataUnsafe?.user?.id || "guest_" + Math.floor(Math.random() * 9999);
             
-            const selectedID = adZones[currentIndex];
-            
-            // পরবর্তী আইডি ইনডেক্স সেট করা
-            let nextIndex = (currentIndex + 1) % adZones.length;
-            localStorage.setItem('msr_zone_index', nextIndex);
-            
-            return selectedID;
+            // SDK রেডি হওয়া পর্যন্ত অপেক্ষা করবে
+            let checkSDK = setInterval(() => {
+                if (typeof showRewardedInterstitial_5dcbd7f4e55a4d175a07692a === "function") {
+                    clearInterval(checkSDK);
+                    
+                    showRewardedInterstitial_5dcbd7f4e55a4d175a07692a({ ymid: userId })
+                        .then(() => {
+                            console.log("Ad show success");
+                            document.getElementById("statusText").innerText = "Success! Loaded";
+                        })
+                        .catch(() => {
+                            console.log("Ad failed");
+                            document.getElementById("statusText").innerText = "Failed/No Ad";
+                        });
+                }
+            }, 300);
         }
-
-        window.onload = function() {
-            const isAuto = localStorage.getItem('msr_auto_status');
-            const currentID = getNextZoneID();
-            
-            document.getElementById("currentActiveID").innerText = "ACTIVE ID: " + currentID;
-
-            if(isAuto === 'true') {
-                document.getElementById("btnOn").classList.add("opacity-low");
-                document.getElementById("btnOff").classList.remove("opacity-low");
-                
-                activateIsland("Auto System", "Zone: " + currentID, "fas fa-sync-alt", true, true);
-                
-                // অ্যাড লোড করা
-                triggerAd(currentID);
-                startTimer();
+        
+        // পেজ লোড হলে অটো মোড চেক
+        window.addEventListener('load', function() {
+            const isAutoOn = localStorage.getItem('bot_auto_active');
+            if(isAutoOn === 'true') {
+                setupAutoUI();
+                triggerAd(); // প্রথম অ্যাড
+                startCountdown(); // ৮ সেকেন্ডের কাউন্টডাউন
             }
-        };
-
-        function triggerAd(zoneId) {
-            const func = 'show_' + zoneId;
-            if (typeof window[func] === "function") {
-                window[func]();
-                console.log("Triggered: " + func);
-            } else {
-                // স্ক্রিপ্ট লোড না হলে ১ সেকেন্ড পর আবার চেষ্টা করবে
-                setTimeout(() => triggerAd(zoneId), 1000);
-            }
-        }
-
+        });
+        
+        // ফিক্সড ম্যানুয়াল অ্যাড ফাংশন
         function manualAd() {
-            localStorage.setItem('msr_auto_status', 'false');
-            const zoneId = getNextZoneID();
-            document.getElementById("currentActiveID").innerText = "ACTIVE ID: " + zoneId;
+            // ১. যদি অটো মোড চালু থাকে, তা বন্ধ করবে (রিলোড ছাড়াই)
+            localStorage.setItem('bot_auto_active', 'false');
+            if(countdownInterval) clearInterval(countdownInterval);
             
-            activateIsland("Manual Ad", "Zone: " + zoneId, "fas fa-play", false, false);
-            triggerAd(zoneId);
+            // ২. UI আপডেট
+            document.getElementById("statusText").innerText = "Requesting Ad...";
             
-            setTimeout(resetIsland, 4000);
+            // ৩. সরাসরি অ্যাড কল করবে
+            triggerAd();
         }
-
+        
         function enableAutoMode() {
-            localStorage.setItem('msr_auto_status', 'true');
-            location.reload(); 
-        }
-
-        function disableAutoMode() {
-            localStorage.setItem('msr_auto_status', 'false');
+            localStorage.setItem('bot_auto_active', 'true');
             location.reload();
         }
-
-        function startTimer() {
-            countdownInterval = setInterval(() => {
-                timeLeft--;
-                const timerEl = document.getElementById("timerDisplay");
-                if(timerEl) timerEl.innerText = timeLeft;
-
-                if(timeLeft <= 0) {
-                    clearInterval(countdownInterval);
-                    location.reload(); // পেজ রিফ্রেশ হয়ে নতুন আইডি লোড হবে
-                }
-            }, 1000);
+        
+        function disableAutoMode() {
+            localStorage.setItem('bot_auto_active', 'false');
+            location.reload();
         }
-
-        function activateIsland(title, text, icon, spin, showTimer) {
+        
+        function setupAutoUI() {
+            document.getElementById("btnOn").classList.add("disabled");
+            document.getElementById("btnOff").classList.remove("disabled");
             document.getElementById("island").classList.add("active");
             document.getElementById("idleState").classList.add("hidden");
             document.getElementById("activeState").classList.remove("hidden");
-            document.getElementById("islandTitle").innerText = title;
-            document.getElementById("islandText").innerText = text;
-            document.getElementById("islandIcon").innerHTML = `<i class="${icon} ${spin ? 'fa-spin' : ''}"></i>`;
-            
-            if(showTimer) {
-                document.getElementById("islandAction").innerHTML = `<div id="timerDisplay" class="timer-circle">${timeLeft}</div>`;
-            }
         }
-
-        function resetIsland() {
-            document.getElementById("island").classList.remove("active");
-            document.getElementById("idleState").classList.remove("hidden");
-            document.getElementById("activeState").classList.add("hidden");
+        
+        function startCountdown() {
+            const progressCircle = document.getElementById("progressCircle");
+            const timerText = document.getElementById("timerText");
+        
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                if(timerText) timerText.innerText = timeLeft;
+                
+                let offset = (timeLeft / 8) * 100;
+                if(progressCircle) progressCircle.style.strokeDashoffset = offset;
+        
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    location.reload(); 
+                }
+            }, 1000);
         }
     </script>
 </body>
+
 </html>

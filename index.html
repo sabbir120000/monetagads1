@@ -169,23 +169,27 @@
         const tg = window.Telegram?.WebApp;
         if (tg) {
             tg.ready();
-            tg.expand(); // টেলিগ্রাম স্ক্রিন ফুল সাইজ করা
+            tg.expand();
         }
         const userId = tg?.initDataUnsafe?.user?.id;
 
         let countdownInterval = null;
         let timeLeft = 10;
         let isAutoActive = false;
+        let isAdShowing = false;
 
         // 1. Adspark অ্যাড কল করার ফাংশন
         function triggerAd(onSuccess, onError, retry = 0) {
             if (typeof showAdspark === "function") {
+                isAdShowing = true;
                 showAdspark({ ymid: userId })
                     .then(() => {
+                        isAdShowing = false;
                         console.log("Ad completed");
                         if (onSuccess) onSuccess();
                     })
                     .catch((err) => {
+                        isAdShowing = false;
                         console.log("Ad failed/closed:", err);
                         if (onError) onError();
                     });
@@ -193,18 +197,16 @@
                 if(retry < 6) {
                     setTimeout(() => triggerAd(onSuccess, onError, retry + 1), 500);
                 } else {
+                    isAdShowing = false;
                     console.log("SDK not loaded");
                     if (onError) onError();
                 }
             }
         }
 
-        // 2. পেজ লোড হলে চেক করবে অটো মোড চালু আছে কিনা
+        // 2. পেজ লোড হলে সবসময় OFF মোডে থাকবে (কোনো অটো অ্যাড লোড হবে না)
         window.addEventListener('load', function() {
-            const storedAuto = localStorage.getItem('bot_auto_active');
-            if(storedAuto === 'true') {
-                startAutoLoopProcess();
-            }
+            disableAutoMode();
         });
 
         // 3. ডাইনামিক আইল্যান্ড ফাংশন
@@ -237,27 +239,30 @@
             document.getElementById("activeState").classList.add("hidden");
         }
 
-        // 4. ম্যানুয়াল অ্যাড
+        // 4. ম্যানুয়াল অ্যাড (Watch 1 Ad এ চাপ দিলে কেবল তখনই আসবে)
         function manualAd() {
-            disableAutoMode(); // ম্যানুয়াল চালুর আগে অটো বন্ধ
+            if (isAdShowing) return; // অ্যাড লোড অবস্থায় বারবার ক্লিক আটকানো
+            
+            disableAutoMode(); // অটো মোড সম্পূর্ণ বন্ধ থাকবে
             activateIsland("Manual", "Loading Ad...", "fas fa-eye", true, false);
             
             triggerAd(
+                // অ্যাড সফলভাবে শেষ হলে
                 () => {
                     activateIsland("Success", "Reward Claimed!", "fas fa-check", false, false);
                     setTimeout(resetIsland, 2500);
                 },
+                // অ্যাড না থাকলে বা ক্লোজ/ব্যাক করলে
                 () => {
-                    activateIsland("Failed", "No Ad Available", "fas fa-times", false, false);
+                    activateIsland("Failed", "No Ad / Closed", "fas fa-times", false, false);
                     setTimeout(resetIsland, 2500);
                 }
             );
         }
 
-        // 5. স্মুথ অটো মোড প্রসেস (রিলোড ছাড়া)
+        // 5. অটো মোড (ইউজার 'Auto Ads ON' চাপলে শুধু কাজ করবে)
         function startAutoLoopProcess() {
-            isAutoActive = true;
-            localStorage.setItem('bot_auto_active', 'true');
+            if(!isAutoActive) return;
 
             document.getElementById("btnOn").classList.add("opacity-low");
             document.getElementById("btnOff").classList.remove("opacity-low");
@@ -265,13 +270,11 @@
             activateIsland("Auto Mode", "Loading Ad...", "fas fa-sync", true, false);
 
             triggerAd(
-                // অ্যাড দেখা শেষ হলে
                 () => {
                     if(!isAutoActive) return;
                     activateIsland("Auto Mode", "Next Ad in...", "fas fa-sync", true, true);
                     startCountdown();
                 },
-                // অ্যাড না থাকলে বা ক্লোজ করলে
                 () => {
                     if(!isAutoActive) return;
                     activateIsland("Auto Mode", "Retry in...", "fas fa-exclamation-circle", false, true);
@@ -281,9 +284,10 @@
         }
 
         function enableAutoMode() {
-            if(!isAutoActive) {
-                startAutoLoopProcess();
-            }
+            if (isAdShowing) return;
+            isAutoActive = true;
+            localStorage.setItem('bot_auto_active', 'true');
+            startAutoLoopProcess();
         }
 
         function disableAutoMode() {
@@ -296,7 +300,7 @@
             document.getElementById("btnOff").classList.add("opacity-low");
         }
 
-        // 6. কাউন্টডাউন টাইমার (পেজ রিলোড না দিয়ে সরাসরি পরবর্তী অ্যাড লোড করবে)
+        // 6. কাউন্টডাউন টাইমার (শুধু অটো মোডের জন্য)
         function startCountdown() {
             clearInterval(countdownInterval);
             timeLeft = 10;
@@ -313,7 +317,7 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    startAutoLoopProcess(); // সরাসরি পরবর্তী লুপ চলবে
+                    startAutoLoopProcess();
                 }
             }, 1000);
         }

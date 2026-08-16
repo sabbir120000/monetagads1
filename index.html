@@ -1,1431 +1,310 @@
 <!DOCTYPE html>
-<html lang="en" style="--tg-viewport-height: 100vh; --tg-viewport-stable-height: 100vh;">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ad Bot - Professional Edition</title>
+    <title>Premium Bot - MSR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><!-- Telegram WebApp SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script><!-- Adspark SDK -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- New Adspark SDK Script -->
     <script src="https://lovely-glow-forge.lovable.app/api/public/sdk.js?k=1"></script>
+
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #fdf2f8 100%);
+            font-family: 'Outfit', sans-serif;
+            background: #f3f4f6;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             overflow: hidden;
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.9);
-            border-radius: 32px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-            padding: 30px;
-        }
-
-        .island {
+        .card {
             background: #ffffff;
-            border-radius: 50px;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
-            transition: all 0.5s ease;
-            min-width: 180px;
-            margin: 0 auto 2rem;
-        }
-
-        .island.active {
-            width: 100%;
-            border-radius: 20px;
-        }
-
-        .btn-3d {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 4px 0 rgba(226, 232, 240, 1);
-            transition: all 0.2s ease;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+            transition: 0.2s ease;
             cursor: pointer;
-            user-select: none;
         }
 
-        .btn-3d:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 rgba(226, 232, 240, 1);
-        }
+        .card:active { transform: scale(0.97); }
 
-        .disabled {
-            opacity: 0.5;
-            pointer-events: none;
-            filter: grayscale(1);
-        }
-
-        .timer-container {
-            position: relative;
-            width: 45px;
-            height: 45px;
+        .dynamic-island {
+            background: #0f172a;
+            color: white;
+            border-radius: 50px;
+            width: 170px;
+            height: 48px;
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .timer-circle-svg {
-            position: absolute;
-            transform: rotate(-90deg);
-            width: 45px;
-            height: 45px;
-        }
-
-        path {
-            fill: none;
-            stroke-width: 3.5;
-            stroke-linecap: round;
-        }
-
-        .circle-bg {
-            stroke: #e2e8f0;
-        }
-
-        .circle-progress {
-            stroke: #4f46e5;
-            stroke-dasharray: 100;
-            stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
-    <style>
-        *,
-        ::before,
-        ::after {
-            --tw-border-spacing-x: 0;
-            --tw-border-spacing-y: 0;
-            --tw-translate-x: 0;
-            --tw-translate-y: 0;
-            --tw-rotate: 0;
-            --tw-skew-x: 0;
-            --tw-skew-y: 0;
-            --tw-scale-x: 1;
-            --tw-scale-y: 1;
-            --tw-pan-x: ;
-            --tw-pan-y: ;
-            --tw-pinch-zoom: ;
-            --tw-scroll-snap-strictness: proximity;
-            --tw-gradient-from-position: ;
-            --tw-gradient-via-position: ;
-            --tw-gradient-to-position: ;
-            --tw-ordinal: ;
-            --tw-slashed-zero: ;
-            --tw-numeric-figure: ;
-            --tw-numeric-spacing: ;
-            --tw-numeric-fraction: ;
-            --tw-ring-inset: ;
-            --tw-ring-offset-width: 0px;
-            --tw-ring-offset-color: #fff;
-            --tw-ring-color: rgb(59 130 246 / 0.5);
-            --tw-ring-offset-shadow: 0 0 #0000;
-            --tw-ring-shadow: 0 0 #0000;
-            --tw-shadow: 0 0 #0000;
-            --tw-shadow-colored: 0 0 #0000;
-            --tw-blur: ;
-            --tw-brightness: ;
-            --tw-contrast: ;
-            --tw-grayscale: ;
-            --tw-hue-rotate: ;
-            --tw-invert: ;
-            --tw-saturate: ;
-            --tw-sepia: ;
-            --tw-drop-shadow: ;
-            --tw-backdrop-blur: ;
-            --tw-backdrop-brightness: ;
-            --tw-backdrop-contrast: ;
-            --tw-backdrop-grayscale: ;
-            --tw-backdrop-hue-rotate: ;
-            --tw-backdrop-invert: ;
-            --tw-backdrop-opacity: ;
-            --tw-backdrop-saturate: ;
-            --tw-backdrop-sepia: ;
-            --tw-contain-size: ;
-            --tw-contain-layout: ;
-            --tw-contain-paint: ;
-            --tw-contain-style:
-        }
-
-        ::backdrop {
-            --tw-border-spacing-x: 0;
-            --tw-border-spacing-y: 0;
-            --tw-translate-x: 0;
-            --tw-translate-y: 0;
-            --tw-rotate: 0;
-            --tw-skew-x: 0;
-            --tw-skew-y: 0;
-            --tw-scale-x: 1;
-            --tw-scale-y: 1;
-            --tw-pan-x: ;
-            --tw-pan-y: ;
-            --tw-pinch-zoom: ;
-            --tw-scroll-snap-strictness: proximity;
-            --tw-gradient-from-position: ;
-            --tw-gradient-via-position: ;
-            --tw-gradient-to-position: ;
-            --tw-ordinal: ;
-            --tw-slashed-zero: ;
-            --tw-numeric-figure: ;
-            --tw-numeric-spacing: ;
-            --tw-numeric-fraction: ;
-            --tw-ring-inset: ;
-            --tw-ring-offset-width: 0px;
-            --tw-ring-offset-color: #fff;
-            --tw-ring-color: rgb(59 130 246 / 0.5);
-            --tw-ring-offset-shadow: 0 0 #0000;
-            --tw-ring-shadow: 0 0 #0000;
-            --tw-shadow: 0 0 #0000;
-            --tw-shadow-colored: 0 0 #0000;
-            --tw-blur: ;
-            --tw-brightness: ;
-            --tw-contrast: ;
-            --tw-grayscale: ;
-            --tw-hue-rotate: ;
-            --tw-invert: ;
-            --tw-saturate: ;
-            --tw-sepia: ;
-            --tw-drop-shadow: ;
-            --tw-backdrop-blur: ;
-            --tw-backdrop-brightness: ;
-            --tw-backdrop-contrast: ;
-            --tw-backdrop-grayscale: ;
-            --tw-backdrop-hue-rotate: ;
-            --tw-backdrop-invert: ;
-            --tw-backdrop-opacity: ;
-            --tw-backdrop-saturate: ;
-            --tw-backdrop-sepia: ;
-            --tw-contain-size: ;
-            --tw-contain-layout: ;
-            --tw-contain-paint: ;
-            --tw-contain-style:
-        }
-
-        /* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
-        *,
-        ::after,
-        ::before {
-            box-sizing: border-box;
-            border-width: 0;
-            border-style: solid;
-            border-color: #e5e7eb
-        }
-
-        ::after,
-        ::before {
-            --tw-content: ''
-        }
-
-        :host,
-        html {
-            line-height: 1.5;
-            -webkit-text-size-adjust: 100%;
-            -moz-tab-size: 4;
-            tab-size: 4;
-            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-            font-feature-settings: normal;
-            font-variation-settings: normal;
-            -webkit-tap-highlight-color: transparent
-        }
-
-        body {
-            margin: 0;
-            line-height: inherit
-        }
-
-        hr {
-            height: 0;
-            color: inherit;
-            border-top-width: 1px
-        }
-
-        abbr:where([title]) {
-            -webkit-text-decoration: underline dotted;
-            text-decoration: underline dotted
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            font-size: inherit;
-            font-weight: inherit
-        }
-
-        a {
-            color: inherit;
-            text-decoration: inherit
-        }
-
-        b,
-        strong {
-            font-weight: bolder
-        }
-
-        code,
-        kbd,
-        pre,
-        samp {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-feature-settings: normal;
-            font-variation-settings: normal;
-            font-size: 1em
-        }
-
-        small {
-            font-size: 80%
-        }
-
-        sub,
-        sup {
-            font-size: 75%;
-            line-height: 0;
-            position: relative;
-            vertical-align: baseline
-        }
-
-        sub {
-            bottom: -.25em
-        }
-
-        sup {
-            top: -.5em
-        }
-
-        table {
-            text-indent: 0;
-            border-color: inherit;
-            border-collapse: collapse
-        }
-
-        button,
-        input,
-        optgroup,
-        select,
-        textarea {
-            font-family: inherit;
-            font-feature-settings: inherit;
-            font-variation-settings: inherit;
-            font-size: 100%;
-            font-weight: inherit;
-            line-height: inherit;
-            letter-spacing: inherit;
-            color: inherit;
-            margin: 0;
-            padding: 0
-        }
-
-        button,
-        select {
-            text-transform: none
-        }
-
-        button,
-        input:where([type=button]),
-        input:where([type=reset]),
-        input:where([type=submit]) {
-            -webkit-appearance: button;
-            background-color: transparent;
-            background-image: none
-        }
-
-        :-moz-focusring {
-            outline: auto
-        }
-
-        :-moz-ui-invalid {
-            box-shadow: none
-        }
-
-        progress {
-            vertical-align: baseline
-        }
-
-        ::-webkit-inner-spin-button,
-        ::-webkit-outer-spin-button {
-            height: auto
-        }
-
-        [type=search] {
-            -webkit-appearance: textfield;
-            outline-offset: -2px
-        }
-
-        ::-webkit-search-decoration {
-            -webkit-appearance: none
-        }
-
-        ::-webkit-file-upload-button {
-            -webkit-appearance: button;
-            font: inherit
-        }
-
-        summary {
-            display: list-item
-        }
-
-        blockquote,
-        dd,
-        dl,
-        figure,
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        hr,
-        p,
-        pre {
-            margin: 0
-        }
-
-        fieldset {
-            margin: 0;
-            padding: 0
-        }
-
-        legend {
-            padding: 0
-        }
-
-        menu,
-        ol,
-        ul {
-            list-style: none;
-            margin: 0;
-            padding: 0
-        }
-
-        dialog {
-            padding: 0
-        }
-
-        textarea {
-            resize: vertical
-        }
-
-        input::placeholder,
-        textarea::placeholder {
-            opacity: 1;
-            color: #9ca3af
-        }
-
-        [role=button],
-        button {
-            cursor: pointer
-        }
-
-        :disabled {
-            cursor: default
-        }
-
-        audio,
-        canvas,
-        embed,
-        iframe,
-        img,
-        object,
-        svg,
-        video {
-            display: block;
-            vertical-align: middle
-        }
-
-        img,
-        video {
-            max-width: 100%;
-            height: auto
-        }
-
-        [hidden]:where(:not([hidden=until-found])) {
-            display: none
-        }
-
-        .relative {
-            position: relative
-        }
-
-        .z-10 {
-            z-index: 10
-        }
-
-        .my-2 {
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem
-        }
-
-        .mb-1 {
-            margin-bottom: 0.25rem
-        }
-
-        .mb-10 {
-            margin-bottom: 2.5rem
-        }
-
-        .flex {
-            display: flex
-        }
-
-        .grid {
-            display: grid
-        }
-
-        .hidden {
-            display: none
-        }
-
-        .h-10 {
-            height: 2.5rem
-        }
-
-        .h-12 {
-            height: 3rem
-        }
-
-        .h-\[1px\] {
-            height: 1px
-        }
-
-        .w-10 {
-            width: 2.5rem
-        }
-
-        .w-12 {
-            width: 3rem
-        }
-
-        .w-full {
-            width: 100%
-        }
-
-        .flex-1 {
-            flex: 1 1 0%
-        }
-
-        .grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr))
-        }
-
-        .flex-col {
-            flex-direction: column
-        }
-
-        .items-center {
-            align-items: center
-        }
-
-        .justify-center {
-            justify-content: center
-        }
-
-        .justify-between {
-            justify-content: space-between
-        }
-
-        .gap-2 {
-            gap: 0.5rem
-        }
-
-        .gap-3 {
-            gap: 0.75rem
-        }
-
-        .gap-4 {
-            gap: 1rem
-        }
-
-        .rounded-full {
-            border-radius: 9999px
-        }
-
-        .rounded-xl {
-            border-radius: 0.75rem
-        }
-
-        .bg-indigo-50 {
-            --tw-bg-opacity: 1;
-            background-color: rgb(238 242 255 / var(--tw-bg-opacity, 1))
-        }
-
-        .bg-indigo-600 {
-            --tw-bg-opacity: 1;
-            background-color: rgb(79 70 229 / var(--tw-bg-opacity, 1))
-        }
-
-        .bg-slate-200 {
-            --tw-bg-opacity: 1;
-            background-color: rgb(226 232 240 / var(--tw-bg-opacity, 1))
-        }
-
-        .py-6 {
-            padding-top: 1.5rem;
-            padding-bottom: 1.5rem
-        }
-
-        .text-left {
-            text-align: left
-        }
-
-        .text-center {
-            text-align: center
-        }
-
-        .text-4xl {
-            font-size: 2.25rem;
-            line-height: 2.5rem
-        }
-
-        .text-\[10px\] {
-            font-size: 10px
-        }
-
-        .text-\[11px\] {
-            font-size: 11px
-        }
-
-        .text-\[12px\] {
-            font-size: 12px
-        }
-
-        .text-\[9px\] {
-            font-size: 9px
-        }
-
-        .text-sm {
-            font-size: 0.875rem;
-            line-height: 1.25rem
-        }
-
-        .text-xs {
-            font-size: 0.75rem;
-            line-height: 1rem
-        }
-
-        .font-black {
-            font-weight: 900
-        }
-
-        .font-bold {
-            font-weight: 700
-        }
-
-        .font-extrabold {
-            font-weight: 800
-        }
-
-        .uppercase {
-            text-transform: uppercase
-        }
-
-        .tracking-\[0\.4em\] {
-            letter-spacing: 0.4em
-        }
-
-        .tracking-widest {
-            letter-spacing: 0.1em
-        }
-
-        .text-emerald-600 {
-            --tw-text-opacity: 1;
-            color: rgb(5 150 105 / var(--tw-text-opacity, 1))
-        }
-
-        .text-indigo-500 {
-            --tw-text-opacity: 1;
-            color: rgb(99 102 241 / var(--tw-text-opacity, 1))
-        }
-
-        .text-indigo-600 {
-            --tw-text-opacity: 1;
-            color: rgb(79 70 229 / var(--tw-text-opacity, 1))
-        }
-
-        .text-rose-500 {
-            --tw-text-opacity: 1;
-            color: rgb(244 63 94 / var(--tw-text-opacity, 1))
-        }
-
-        .text-slate-300 {
-            --tw-text-opacity: 1;
-            color: rgb(203 213 225 / var(--tw-text-opacity, 1))
-        }
-
-        .text-slate-400 {
-            --tw-text-opacity: 1;
-            color: rgb(148 163 184 / var(--tw-text-opacity, 1))
-        }
-
-        .text-slate-500 {
-            --tw-text-opacity: 1;
-            color: rgb(100 116 139 / var(--tw-text-opacity, 1))
-        }
-
-        .text-slate-700 {
-            --tw-text-opacity: 1;
-            color: rgb(51 65 85 / var(--tw-text-opacity, 1))
-        }
-
-        .text-white {
-            --tw-text-opacity: 1;
-            color: rgb(255 255 255 / var(--tw-text-opacity, 1))
-        }
-    </style>
-    <style></style>
-    <style>
-        *,
-        ::before,
-        ::after {
-            --tw-border-spacing-x: 0;
-            --tw-border-spacing-y: 0;
-            --tw-translate-x: 0;
-            --tw-translate-y: 0;
-            --tw-rotate: 0;
-            --tw-skew-x: 0;
-            --tw-skew-y: 0;
-            --tw-scale-x: 1;
-            --tw-scale-y: 1;
-            --tw-pan-x: ;
-            --tw-pan-y: ;
-            --tw-pinch-zoom: ;
-            --tw-scroll-snap-strictness: proximity;
-            --tw-gradient-from-position: ;
-            --tw-gradient-via-position: ;
-            --tw-gradient-to-position: ;
-            --tw-ordinal: ;
-            --tw-slashed-zero: ;
-            --tw-numeric-figure: ;
-            --tw-numeric-spacing: ;
-            --tw-numeric-fraction: ;
-            --tw-ring-inset: ;
-            --tw-ring-offset-width: 0px;
-            --tw-ring-offset-color: #fff;
-            --tw-ring-color: rgb(59 130 246 / 0.5);
-            --tw-ring-offset-shadow: 0 0 #0000;
-            --tw-ring-shadow: 0 0 #0000;
-            --tw-shadow: 0 0 #0000;
-            --tw-shadow-colored: 0 0 #0000;
-            --tw-blur: ;
-            --tw-brightness: ;
-            --tw-contrast: ;
-            --tw-grayscale: ;
-            --tw-hue-rotate: ;
-            --tw-invert: ;
-            --tw-saturate: ;
-            --tw-sepia: ;
-            --tw-drop-shadow: ;
-            --tw-backdrop-blur: ;
-            --tw-backdrop-brightness: ;
-            --tw-backdrop-contrast: ;
-            --tw-backdrop-grayscale: ;
-            --tw-backdrop-hue-rotate: ;
-            --tw-backdrop-invert: ;
-            --tw-backdrop-opacity: ;
-            --tw-backdrop-saturate: ;
-            --tw-backdrop-sepia: ;
-            --tw-contain-size: ;
-            --tw-contain-layout: ;
-            --tw-contain-paint: ;
-            --tw-contain-style:
-        }
-
-        ::backdrop {
-            --tw-border-spacing-x: 0;
-            --tw-border-spacing-y: 0;
-            --tw-translate-x: 0;
-            --tw-translate-y: 0;
-            --tw-rotate: 0;
-            --tw-skew-x: 0;
-            --tw-skew-y: 0;
-            --tw-scale-x: 1;
-            --tw-scale-y: 1;
-            --tw-pan-x: ;
-            --tw-pan-y: ;
-            --tw-pinch-zoom: ;
-            --tw-scroll-snap-strictness: proximity;
-            --tw-gradient-from-position: ;
-            --tw-gradient-via-position: ;
-            --tw-gradient-to-position: ;
-            --tw-ordinal: ;
-            --tw-slashed-zero: ;
-            --tw-numeric-figure: ;
-            --tw-numeric-spacing: ;
-            --tw-numeric-fraction: ;
-            --tw-ring-inset: ;
-            --tw-ring-offset-width: 0px;
-            --tw-ring-offset-color: #fff;
-            --tw-ring-color: rgb(59 130 246 / 0.5);
-            --tw-ring-offset-shadow: 0 0 #0000;
-            --tw-ring-shadow: 0 0 #0000;
-            --tw-shadow: 0 0 #0000;
-            --tw-shadow-colored: 0 0 #0000;
-            --tw-blur: ;
-            --tw-brightness: ;
-            --tw-contrast: ;
-            --tw-grayscale: ;
-            --tw-hue-rotate: ;
-            --tw-invert: ;
-            --tw-saturate: ;
-            --tw-sepia: ;
-            --tw-drop-shadow: ;
-            --tw-backdrop-blur: ;
-            --tw-backdrop-brightness: ;
-            --tw-backdrop-contrast: ;
-            --tw-backdrop-grayscale: ;
-            --tw-backdrop-hue-rotate: ;
-            --tw-backdrop-invert: ;
-            --tw-backdrop-opacity: ;
-            --tw-backdrop-saturate: ;
-            --tw-backdrop-sepia: ;
-            --tw-contain-size: ;
-            --tw-contain-layout: ;
-            --tw-contain-paint: ;
-            --tw-contain-style:
-        }
-
-        /* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
-        *,
-        ::after,
-        ::before {
-            box-sizing: border-box;
-            border-width: 0;
-            border-style: solid;
-            border-color: #e5e7eb
-        }
-
-        ::after,
-        ::before {
-            --tw-content: ''
-        }
-
-        :host,
-        html {
-            line-height: 1.5;
-            -webkit-text-size-adjust: 100%;
-            -moz-tab-size: 4;
-            tab-size: 4;
-            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-            font-feature-settings: normal;
-            font-variation-settings: normal;
-            -webkit-tap-highlight-color: transparent
-        }
-
-        body {
-            margin: 0;
-            line-height: inherit
-        }
-
-        hr {
-            height: 0;
-            color: inherit;
-            border-top-width: 1px
-        }
-
-        abbr:where([title]) {
-            -webkit-text-decoration: underline dotted;
-            text-decoration: underline dotted
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            font-size: inherit;
-            font-weight: inherit
-        }
-
-        a {
-            color: inherit;
-            text-decoration: inherit
-        }
-
-        b,
-        strong {
-            font-weight: bolder
-        }
-
-        code,
-        kbd,
-        pre,
-        samp {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-feature-settings: normal;
-            font-variation-settings: normal;
-            font-size: 1em
-        }
-
-        small {
-            font-size: 80%
-        }
-
-        sub,
-        sup {
-            font-size: 75%;
-            line-height: 0;
-            position: relative;
-            vertical-align: baseline
-        }
-
-        sub {
-            bottom: -.25em
-        }
-
-        sup {
-            top: -.5em
-        }
-
-        table {
-            text-indent: 0;
-            border-color: inherit;
-            border-collapse: collapse
-        }
-
-        button,
-        input,
-        optgroup,
-        select,
-        textarea {
-            font-family: inherit;
-            font-feature-settings: inherit;
-            font-variation-settings: inherit;
-            font-size: 100%;
-            font-weight: inherit;
-            line-height: inherit;
-            letter-spacing: inherit;
-            color: inherit;
-            margin: 0;
-            padding: 0
-        }
-
-        button,
-        select {
-            text-transform: none
-        }
-
-        button,
-        input:where([type=button]),
-        input:where([type=reset]),
-        input:where([type=submit]) {
-            -webkit-appearance: button;
-            background-color: transparent;
-            background-image: none
-        }
-
-        :-moz-focusring {
-            outline: auto
-        }
-
-        :-moz-ui-invalid {
-            box-shadow: none
-        }
-
-        progress {
-            vertical-align: baseline
-        }
-
-        ::-webkit-inner-spin-button,
-        ::-webkit-outer-spin-button {
-            height: auto
-        }
-
-        [type=search] {
-            -webkit-appearance: textfield;
-            outline-offset: -2px
-        }
-
-        ::-webkit-search-decoration {
-            -webkit-appearance: none
-        }
-
-        ::-webkit-file-upload-button {
-            -webkit-appearance: button;
-            font: inherit
-        }
-
-        summary {
-            display: list-item
-        }
-
-        blockquote,
-        dd,
-        dl,
-        figure,
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        hr,
-        p,
-        pre {
-            margin: 0
-        }
-
-        fieldset {
-            margin: 0;
-            padding: 0
-        }
-
-        legend {
-            padding: 0
-        }
-
-        menu,
-        ol,
-        ul {
-            list-style: none;
-            margin: 0;
-            padding: 0
-        }
-
-        dialog {
-            padding: 0
-        }
-
-        textarea {
-            resize: vertical
-        }
-
-        input::placeholder,
-        textarea::placeholder {
-            opacity: 1;
-            color: #9ca3af
-        }
-
-        [role=button],
-        button {
-            cursor: pointer
-        }
-
-        :disabled {
-            cursor: default
-        }
-
-        audio,
-        canvas,
-        embed,
-        iframe,
-        img,
-        object,
-        svg,
-        video {
-            display: block;
-            vertical-align: middle
-        }
-
-        img,
-        video {
-            max-width: 100%;
-            height: auto
-        }
-
-        [hidden]:where(:not([hidden=until-found])) {
-            display: none
-        }
-
-        .relative {
-            position: relative
-        }
-
-        .z-10 {
-            z-index: 10
-        }
-
-        .my-2 {
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem
-        }
-
-        .mb-1 {
-            margin-bottom: 0.25rem
-        }
-
-        .mb-10 {
-            margin-bottom: 2.5rem
-        }
-
-        .flex {
-            display: flex
-        }
-
-        .grid {
-            display: grid
-        }
-
-        .hidden {
-            display: none
-        }
-
-        .h-10 {
-            height: 2.5rem
-        }
-
-        .h-12 {
-            height: 3rem
-        }
-
-        .h-\[1px\] {
-            height: 1px
-        }
-
-        .w-10 {
-            width: 2.5rem
-        }
-
-        .w-12 {
-            width: 3rem
-        }
-
-        .w-full {
-            width: 100%
-        }
-
-        .flex-1 {
-            flex: 1 1 0%
-        }
-
-        .grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr))
-        }
-
-        .flex-col {
-            flex-direction: column
-        }
-
-        .items-center {
-            align-items: center
-        }
-
-        .justify-center {
-            justify-content: center
-        }
-
-        .justify-between {
-            justify-content: space-between
-        }
-
-        .gap-2 {
-            gap: 0.5rem
-        }
-
-        .gap-3 {
-            gap: 0.75rem
-        }
-
-        .gap-4 {
-            gap: 1rem
-        }
-
-        .rounded-full {
-            border-radius: 9999px
-        }
-
-        .rounded-xl {
-            border-radius: 0.75rem
-        }
-
-        .bg-indigo-50 {
-            --tw-bg-opacity: 1;
-            background-color: rgb(238 242 255 / var(--tw-bg-opacity, 1))
-        }
-
-        .bg-indigo-600 {
-            --tw-bg-opacity: 1;
-            background-color: rgb(79 70 229 / var(--tw-bg-opacity, 1))
-        }
-
-        .bg-slate-200 {
-            --tw-bg-opacity: 1;
-            background-color: rgb(226 232 240 / var(--tw-bg-opacity, 1))
-        }
-
-        .py-6 {
-            padding-top: 1.5rem;
-            padding-bottom: 1.5rem
-        }
-
-        .text-left {
-            text-align: left
-        }
-
-        .text-center {
-            text-align: center
-        }
-
-        .text-4xl {
-            font-size: 2.25rem;
-            line-height: 2.5rem
-        }
-
-        .text-\[10px\] {
-            font-size: 10px
-        }
-
-        .text-\[11px\] {
-            font-size: 11px
-        }
-
-        .text-\[12px\] {
-            font-size: 12px
-        }
-
-        .text-\[9px\] {
-            font-size: 9px
-        }
-
-        .text-sm {
-            font-size: 0.875rem;
-            line-height: 1.25rem
-        }
-
-        .text-xs {
-            font-size: 0.75rem;
-            line-height: 1rem
-        }
-
-        .font-black {
-            font-weight: 900
-        }
-
-        .font-bold {
-            font-weight: 700
-        }
-
-        .font-extrabold {
-            font-weight: 800
-        }
-
-        .uppercase {
-            text-transform: uppercase
-        }
-
-        .tracking-\[0\.4em\] {
-            letter-spacing: 0.4em
-        }
-
-        .tracking-widest {
-            letter-spacing: 0.1em
-        }
-
-        .text-emerald-600 {
-            --tw-text-opacity: 1;
-            color: rgb(5 150 105 / var(--tw-text-opacity, 1))
-        }
-
-        .text-indigo-500 {
-            --tw-text-opacity: 1;
-            color: rgb(99 102 241 / var(--tw-text-opacity, 1))
-        }
-
-        .text-indigo-600 {
-            --tw-text-opacity: 1;
-            color: rgb(79 70 229 / var(--tw-text-opacity, 1))
-        }
-
-        .text-rose-500 {
-            --tw-text-opacity: 1;
-            color: rgb(244 63 94 / var(--tw-text-opacity, 1))
-        }
-
-        .text-slate-300 {
-            --tw-text-opacity: 1;
-            color: rgb(203 213 225 / var(--tw-text-opacity, 1))
-        }
-
-        .text-slate-400 {
-            --tw-text-opacity: 1;
-            color: rgb(148 163 184 / var(--tw-text-opacity, 1))
-        }
-
-        .text-slate-500 {
-            --tw-text-opacity: 1;
-            color: rgb(100 116 139 / var(--tw-text-opacity, 1))
-        }
-
-        .text-slate-700 {
-            --tw-text-opacity: 1;
-            color: rgb(51 65 85 / var(--tw-text-opacity, 1))
-        }
-
-        .text-white {
-            --tw-text-opacity: 1;
-            color: rgb(255 255 255 / var(--tw-text-opacity, 1))
-        }
+            transition: 0.4s ease;
+            z-index: 50;
+        }
+
+        .dynamic-island.active {
+            width: 92%;
+            max-width: 360px;
+            height: 85px;
+            border-radius: 28px;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .timer-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 3px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .hidden { display: none; }
+        .opacity-low { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
-
 <body>
-    <div class="glass-panel text-center"><!-- Status Island -->
-        <div id="island" class="island">
-            <div id="idleState" class="flex items-center gap-2"><span id="statusText" class="text-xs font-bold text-slate-500 uppercase tracking-widest">System Ready</span></div>
-            <div id="activeState" class="hidden w-full flex justify-between items-center text-left">
+
+    <div class="relative w-full max-w-md h-screen flex flex-col justify-between py-8 px-6">
+        
+        <!-- Dynamic Island -->
+        <div id="island" class="dynamic-island">
+            <div id="idleState" class="flex items-center gap-2 text-sm font-semibold">
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                System Ready
+            </div>
+            <div id="activeState" class="hidden w-full flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600"><br></div>
+                    <div id="islandIcon" class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
+                        <i class="fas fa-play"></i>
+                    </div>
                     <div>
-                        <h4 class="text-[10px] font-black text-indigo-500 uppercase">Auto Bot</h4>
-                        <p class="text-xs font-bold text-slate-700">Next Ad in...</p>
+                        <p id="islandTitle" class="text-[10px] uppercase text-gray-400 font-bold">Status</p>
+                        <p id="islandText" class="text-sm font-bold">Processing...</p>
                     </div>
                 </div>
-                <div class="timer-container"><svg class="timer-circle-svg" viewBox="0 0 36 36">&nbsp;<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-                        <path id="progressCircle" class="circle-progress" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>&nbsp;
-                    </svg> <span id="timerText" class="text-[12px] font-black text-indigo-600 relative z-10">8</span></div>
+                <div id="islandAction"></div>
             </div>
         </div>
-        <div class="mb-10">
-            <h1 class="text-4xl font-extrabold text-indigo-600 mb-1">AD Spark </h1>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em]">Premium Automation</p>
+
+        <!-- Header -->
+        <div class="mt-24 text-center">
+            <h1 class="text-4xl font-black text-slate-800">Premium Bot</h1>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Adspark Reward Ads</p>
         </div>
-        <div class="flex flex-col gap-4"><!-- Manual Play Button -->
-            <div id="manualBtn" onclick="manualAd()" class="btn-3d group">
-                <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white"><br></div>
-                <div class="text-left">
-                    <h3 class="text-md font-extrabold">Watch 1 Ad</h3>
-                    <p class="text-[11px] text-slate-400">Watch 1 Premium Ad</p>
+
+        <!-- Buttons -->
+        <div class="flex-1 flex flex-col justify-center gap-6">
+            
+            <!-- Watch Ad -->
+            <button onclick="manualAd()" class="card p-5 flex items-center justify-between border-l-4 border-blue-500">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Watch 1 Ad</h3>
+                        <p class="text-xs text-slate-500">Manual Mode (Single)</p>
+                    </div>
                 </div>
+                <i class="fas fa-chevron-right text-slate-300 text-xl"></i>
+            </button>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-3">
+                <div class="h-px bg-gray-300 flex-1"></div>
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Auto Loop</span>
+                <div class="h-px bg-gray-300 flex-1"></div>
             </div>
-            <div class="flex items-center gap-4 my-2">
-                <div class="h-[1px] bg-slate-200 flex-1"><br></div><span class="text-[9px] font-bold text-slate-300">AUTO MODE</span>
-                <div class="h-[1px] bg-slate-200 flex-1"><br></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div id="btnOn" onclick="enableAutoMode()" class="btn-3d flex-col py-6"><span class="text-sm font-black text-emerald-600">START AUTO</span></div>
-                <div id="btnOff" onclick="disableAutoMode()" class="btn-3d flex-col py-6 disabled"><span class="text-sm font-black text-rose-500">STOP BOT</span></div>
-            </div>
+
+            <!-- Auto ON -->
+            <button onclick="enableAutoMode()" id="btnOn" class="card p-5 flex items-center justify-between border-l-4 border-emerald-500">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Auto Ads ON</h3>
+                        <p class="text-xs text-slate-500">Auto Refresh & Show</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Auto OFF -->
+            <button onclick="disableAutoMode()" id="btnOff" class="card p-5 flex items-center justify-between border-l-4 border-rose-500 opacity-low">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 text-2xl">
+                        <i class="fas fa-power-off"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Auto Ads OFF</h3>
+                        <p class="text-xs text-slate-500">Stop System</p>
+                    </div>
+                </div>
+            </button>
+
         </div>
+
+        <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[3px]">
+            Developer MSR
+        </p>
     </div>
+
     <script>
+        // Telegram User ID ইনিশিয়ালাইজেশন
         const tg = window.Telegram?.WebApp;
         if (tg) tg.ready();
-        
-        let timeLeft = 8;
+        const userId = tg?.initDataUnsafe?.user?.id;
+
         let countdownInterval = null;
-        
-        // টেলিগ্রাম আইডি পাওয়ার ফাংশন
-        function getUserId() {
-            return tg?.initDataUnsafe?.user?.id || "guest_" + Math.floor(Math.random() * 9999);
-        }
-        
-        // ম্যানুয়াল প্লে (ক্লিক করার ১ সেকেন্ডের মধ্যে ইনস্ট্যান্ট অ্যাড শো করবে)
-        function manualAd() {
-            // ১. অটো মোড বন্ধ করা
-            localStorage.setItem('bot_auto_active', 'false');
-            if(countdownInterval) clearInterval(countdownInterval);
-            
-            const statusElem = document.getElementById("statusText");
-            if (statusElem) statusElem.innerText = "Opening Ad...";
-        
-            const userId = getUserId();
-        
-            // ২. সরাসরি ইনস্ট্যান্ট অ্যাড কল (কোনো বিলম্ব ছাড়া)
+        let timeLeft = 15;
+
+        // 1. নতুন Adspark অ্যাড ট্র্রিগার করার ফাংশন
+        function triggerAd(onSuccess, onError, retry = 0) {
             if (typeof showAdspark === "function") {
                 showAdspark({ ymid: userId })
                     .then(() => {
-                        console.log("Manual Ad completed");
-                        if (statusElem) statusElem.innerText = "Ad Success!";
+                        console.log("Ad completed successfully");
+                        if (onSuccess) onSuccess();
                     })
                     .catch((err) => {
-                        console.log("No ad available / Error", err);
-                        if (statusElem) statusElem.innerText = "No Ad Available";
+                        console.log("No ad available or error:", err);
+                        if (onError) onError();
                     });
             } else {
-                console.log("SDK not ready yet");
-                if (statusElem) statusElem.innerText = "SDK Loading...";
+                if(retry < 8) {
+                    setTimeout(() => triggerAd(onSuccess, onError, retry + 1), 500);
+                } else {
+                    console.log("SDK is not loaded properly.");
+                    if (onError) onError();
+                }
             }
         }
-        
-        // অটো মোডের জন্য অ্যাড কল
-        function triggerAutoAd() {
-            const userId = getUserId();
-            let checkSDK = setInterval(() => {
-                if (typeof showAdspark === "function") {
-                    clearInterval(checkSDK);
-                    showAdspark({ ymid: userId })
-                        .then(() => {
-                            const statusElem = document.getElementById("statusText");
-                            if (statusElem) statusElem.innerText = "Ad Success!";
-                        })
-                        .catch((err) => {
-                            const statusElem = document.getElementById("statusText");
-                            if (statusElem) statusElem.innerText = "No Ad Available";
-                        });
-                }
-            }, 300);
-        }
-        
-        // পেজ লোড হলে অটো মোড রান হবে
+
+        // 2. পেজ লোড হলে চেক করবে অটো মোড অন আছে কিনা
         window.addEventListener('load', function() {
             const isAutoOn = localStorage.getItem('bot_auto_active');
+            
             if(isAutoOn === 'true') {
-                setupAutoUI();
-                triggerAutoAd();
-                startCountdown();
+                // UI আপডেট
+                document.getElementById("btnOn").classList.add("opacity-low");
+                document.getElementById("btnOff").classList.remove("opacity-low");
+                
+                // আইল্যান্ড অ্যাক্টিভ করা
+                activateIsland("Auto Mode", "Loading Ad...", "fas fa-sync", true, false);
+                
+                // অ্যাড শো করা
+                triggerAd(
+                    // Success callback
+                    () => {
+                        activateIsland("Auto Mode", "Ad Complete! Next...", "fas fa-sync", true, true);
+                        startCountdown();
+                    },
+                    // Error callback (No ad available)
+                    () => {
+                        activateIsland("Auto Mode", "No Ad! Retrying...", "fas fa-exclamation-triangle", false, true);
+                        startCountdown();
+                    }
+                );
             }
         });
-        
+
+        // 3. ডাইনামিক আইল্যান্ড ফাংশন
+        function activateIsland(title, text, icon, spin = false, withTimer = false) {
+            const island = document.getElementById("island");
+            const idle = document.getElementById("idleState");
+            const active = document.getElementById("activeState");
+
+            island.classList.add("active");
+            idle.classList.add("hidden");
+            active.classList.remove("hidden");
+
+            document.getElementById("islandTitle").innerText = title;
+            document.getElementById("islandText").innerText = text;
+
+            let iconHTML = `<i class="${icon} ${spin ? 'fa-spin' : ''}"></i>`;
+            document.getElementById("islandIcon").innerHTML = iconHTML;
+
+            if (withTimer) {
+                document.getElementById("islandAction").innerHTML = 
+                    `<div id="timerDisplay" class="timer-circle">${timeLeft}</div>`;
+            } else {
+                document.getElementById("islandAction").innerHTML = "";
+            }
+        }
+
+        function resetIsland() {
+            document.getElementById("island").classList.remove("active");
+            document.getElementById("idleState").classList.remove("hidden");
+            document.getElementById("activeState").classList.add("hidden");
+        }
+
+        // 4. ম্যানুয়াল মোড
+        function manualAd() {
+            disableAutoMode(); // অটো মোড বন্ধ করে দিবে
+            activateIsland("Manual", "Loading Ad...", "fas fa-eye", true, false);
+            
+            triggerAd(
+                // Success
+                () => {
+                    activateIsland("Success", "Reward Claimed!", "fas fa-check", false, false);
+                    setTimeout(resetIsland, 2500);
+                },
+                // Failure
+                () => {
+                    activateIsland("Failed", "No Ad Available", "fas fa-times", false, false);
+                    setTimeout(resetIsland, 2500);
+                }
+            );
+        }
+
+        // 5. অটো মোড অন করা
         function enableAutoMode() {
             localStorage.setItem('bot_auto_active', 'true');
-            location.reload();
+            location.reload(); 
         }
-        
+
+        // 6. অটো মোড অফ করা
         function disableAutoMode() {
             localStorage.setItem('bot_auto_active', 'false');
-            location.reload();
+            clearInterval(countdownInterval);
+            resetIsland();
+            
+            document.getElementById("btnOn").classList.remove("opacity-low");
+            document.getElementById("btnOff").classList.add("opacity-low");
         }
-        
-        function setupAutoUI() {
-            document.getElementById("btnOn").classList.add("disabled");
-            document.getElementById("btnOff").classList.remove("disabled");
-            document.getElementById("island").classList.add("active");
-            document.getElementById("idleState").classList.add("hidden");
-            document.getElementById("activeState").classList.remove("hidden");
-        }
-        
+
+        // 7. কাউন্টডাউন টাইমার (টাইমার শেষ হলে পেজ রিলোড দিবে)
         function startCountdown() {
-            const progressCircle = document.getElementById("progressCircle");
-            const timerText = document.getElementById("timerText");
-        
+            clearInterval(countdownInterval);
+            timeLeft = 15;
+            
             countdownInterval = setInterval(() => {
                 timeLeft--;
-                if(timerText) timerText.innerText = timeLeft;
                 
-                let offset = (timeLeft / 8) * 100;
-                if(progressCircle) progressCircle.style.strokeDashoffset = (100 - offset);
-        
+                const timerDisplay = document.getElementById("timerDisplay");
+                if(timerDisplay) timerDisplay.innerText = timeLeft;
+
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    location.reload();
+                    location.reload(); 
                 }
             }, 1000);
         }
     </script>
 </body>
-
 </html>

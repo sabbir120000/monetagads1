@@ -11,7 +11,7 @@
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- New Adspark SDK Script -->
+    <!-- Adspark SDK Script -->
     <script src="https://lovely-glow-forge.lovable.app/api/public/sdk.js?k=1"></script>
 
     <style>
@@ -165,61 +165,45 @@
     </div>
 
     <script>
-        // Telegram User ID ইনিশিয়ালাইজেশন
+        // Telegram WebApp ইনিশিয়ালাইজেশন
         const tg = window.Telegram?.WebApp;
-        if (tg) tg.ready();
+        if (tg) {
+            tg.ready();
+            tg.expand(); // টেলিগ্রাম স্ক্রিন ফুল সাইজ করা
+        }
         const userId = tg?.initDataUnsafe?.user?.id;
 
         let countdownInterval = null;
-        let timeLeft = 15;
+        let timeLeft = 10;
+        let isAutoActive = false;
 
-        // 1. নতুন Adspark অ্যাড ট্র্রিগার করার ফাংশন
+        // 1. Adspark অ্যাড কল করার ফাংশন
         function triggerAd(onSuccess, onError, retry = 0) {
             if (typeof showAdspark === "function") {
                 showAdspark({ ymid: userId })
                     .then(() => {
-                        console.log("Ad completed successfully");
+                        console.log("Ad completed");
                         if (onSuccess) onSuccess();
                     })
                     .catch((err) => {
-                        console.log("No ad available or error:", err);
+                        console.log("Ad failed/closed:", err);
                         if (onError) onError();
                     });
             } else {
-                if(retry < 8) {
+                if(retry < 6) {
                     setTimeout(() => triggerAd(onSuccess, onError, retry + 1), 500);
                 } else {
-                    console.log("SDK is not loaded properly.");
+                    console.log("SDK not loaded");
                     if (onError) onError();
                 }
             }
         }
 
-        // 2. পেজ লোড হলে চেক করবে অটো মোড অন আছে কিনা
+        // 2. পেজ লোড হলে চেক করবে অটো মোড চালু আছে কিনা
         window.addEventListener('load', function() {
-            const isAutoOn = localStorage.getItem('bot_auto_active');
-            
-            if(isAutoOn === 'true') {
-                // UI আপডেট
-                document.getElementById("btnOn").classList.add("opacity-low");
-                document.getElementById("btnOff").classList.remove("opacity-low");
-                
-                // আইল্যান্ড অ্যাক্টিভ করা
-                activateIsland("Auto Mode", "Loading Ad...", "fas fa-sync", true, false);
-                
-                // অ্যাড শো করা
-                triggerAd(
-                    // Success callback
-                    () => {
-                        activateIsland("Auto Mode", "Ad Complete! Next...", "fas fa-sync", true, true);
-                        startCountdown();
-                    },
-                    // Error callback (No ad available)
-                    () => {
-                        activateIsland("Auto Mode", "No Ad! Retrying...", "fas fa-exclamation-triangle", false, true);
-                        startCountdown();
-                    }
-                );
+            const storedAuto = localStorage.getItem('bot_auto_active');
+            if(storedAuto === 'true') {
+                startAutoLoopProcess();
             }
         });
 
@@ -253,18 +237,16 @@
             document.getElementById("activeState").classList.add("hidden");
         }
 
-        // 4. ম্যানুয়াল মোড
+        // 4. ম্যানুয়াল অ্যাড
         function manualAd() {
-            disableAutoMode(); // অটো মোড বন্ধ করে দিবে
+            disableAutoMode(); // ম্যানুয়াল চালুর আগে অটো বন্ধ
             activateIsland("Manual", "Loading Ad...", "fas fa-eye", true, false);
             
             triggerAd(
-                // Success
                 () => {
                     activateIsland("Success", "Reward Claimed!", "fas fa-check", false, false);
                     setTimeout(resetIsland, 2500);
                 },
-                // Failure
                 () => {
                     activateIsland("Failed", "No Ad Available", "fas fa-times", false, false);
                     setTimeout(resetIsland, 2500);
@@ -272,14 +254,40 @@
             );
         }
 
-        // 5. অটো মোড অন করা
-        function enableAutoMode() {
+        // 5. স্মুথ অটো মোড প্রসেস (রিলোড ছাড়া)
+        function startAutoLoopProcess() {
+            isAutoActive = true;
             localStorage.setItem('bot_auto_active', 'true');
-            location.reload(); 
+
+            document.getElementById("btnOn").classList.add("opacity-low");
+            document.getElementById("btnOff").classList.remove("opacity-low");
+
+            activateIsland("Auto Mode", "Loading Ad...", "fas fa-sync", true, false);
+
+            triggerAd(
+                // অ্যাড দেখা শেষ হলে
+                () => {
+                    if(!isAutoActive) return;
+                    activateIsland("Auto Mode", "Next Ad in...", "fas fa-sync", true, true);
+                    startCountdown();
+                },
+                // অ্যাড না থাকলে বা ক্লোজ করলে
+                () => {
+                    if(!isAutoActive) return;
+                    activateIsland("Auto Mode", "Retry in...", "fas fa-exclamation-circle", false, true);
+                    startCountdown();
+                }
+            );
         }
 
-        // 6. অটো মোড অফ করা
+        function enableAutoMode() {
+            if(!isAutoActive) {
+                startAutoLoopProcess();
+            }
+        }
+
         function disableAutoMode() {
+            isAutoActive = false;
             localStorage.setItem('bot_auto_active', 'false');
             clearInterval(countdownInterval);
             resetIsland();
@@ -288,20 +296,24 @@
             document.getElementById("btnOff").classList.add("opacity-low");
         }
 
-        // 7. কাউন্টডাউন টাইমার (টাইমার শেষ হলে পেজ রিলোড দিবে)
+        // 6. কাউন্টডাউন টাইমার (পেজ রিলোড না দিয়ে সরাসরি পরবর্তী অ্যাড লোড করবে)
         function startCountdown() {
             clearInterval(countdownInterval);
-            timeLeft = 15;
+            timeLeft = 10;
             
             countdownInterval = setInterval(() => {
-                timeLeft--;
+                if(!isAutoActive) {
+                    clearInterval(countdownInterval);
+                    return;
+                }
                 
+                timeLeft--;
                 const timerDisplay = document.getElementById("timerDisplay");
                 if(timerDisplay) timerDisplay.innerText = timeLeft;
 
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    location.reload(); 
+                    startAutoLoopProcess(); // সরাসরি পরবর্তী লুপ চলবে
                 }
             }, 1000);
         }

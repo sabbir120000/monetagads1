@@ -174,7 +174,7 @@
         const userId = tg?.initDataUnsafe?.user?.id;
 
         let countdownInterval = null;
-        let timeLeft = 10;
+        let timeLeft = 6; // টাইমার ৬ সেকেন্ড
         let isAutoActive = false;
         let isAdShowing = false;
 
@@ -185,12 +185,10 @@
                 showAdspark({ ymid: userId })
                     .then(() => {
                         isAdShowing = false;
-                        console.log("Ad completed");
                         if (onSuccess) onSuccess();
                     })
                     .catch((err) => {
                         isAdShowing = false;
-                        console.log("Ad failed/closed:", err);
                         if (onError) onError();
                     });
             } else {
@@ -198,15 +196,19 @@
                     setTimeout(() => triggerAd(onSuccess, onError, retry + 1), 500);
                 } else {
                     isAdShowing = false;
-                    console.log("SDK not loaded");
                     if (onError) onError();
                 }
             }
         }
 
-        // 2. পেজ লোড হলে সবসময় OFF মোডে থাকবে (কোনো অটো অ্যাড লোড হবে না)
+        // 2. পেজ লোড হলে চেক করবে Auto Mode চালু আছে কি না
         window.addEventListener('load', function() {
-            disableAutoMode();
+            const autoStatus = localStorage.getItem('bot_auto_active');
+            if (autoStatus === 'true') {
+                enableAutoMode();
+            } else {
+                disableAutoMode();
+            }
         });
 
         // 3. ডাইনামিক আইল্যান্ড ফাংশন
@@ -239,20 +241,18 @@
             document.getElementById("activeState").classList.add("hidden");
         }
 
-        // 4. ম্যানুয়াল অ্যাড (Watch 1 Ad এ চাপ দিলে কেবল তখনই আসবে)
+        // 4. ম্যানুয়াল অ্যাড
         function manualAd() {
-            if (isAdShowing) return; // অ্যাড লোড অবস্থায় বারবার ক্লিক আটকানো
+            if (isAdShowing) return;
             
-            disableAutoMode(); // অটো মোড সম্পূর্ণ বন্ধ থাকবে
+            disableAutoMode(); // অটো মোড সম্পূর্ণ বন্ধ করে দেওয়া হবে
             activateIsland("Manual", "Loading Ad...", "fas fa-eye", true, false);
             
             triggerAd(
-                // অ্যাড সফলভাবে শেষ হলে
                 () => {
                     activateIsland("Success", "Reward Claimed!", "fas fa-check", false, false);
                     setTimeout(resetIsland, 2500);
                 },
-                // অ্যাড না থাকলে বা ক্লোজ/ব্যাক করলে
                 () => {
                     activateIsland("Failed", "No Ad / Closed", "fas fa-times", false, false);
                     setTimeout(resetIsland, 2500);
@@ -260,31 +260,22 @@
             );
         }
 
-        // 5. অটো মোড (ইউজার 'Auto Ads ON' চাপলে শুধু কাজ করবে)
+        // 5. অটো মোড (অ্যাড চালু হবে এবং ৬ সেকেন্ড পর পেজ রিফ্রেশ হবে)
         function startAutoLoopProcess() {
             if(!isAutoActive) return;
 
             document.getElementById("btnOn").classList.add("opacity-low");
             document.getElementById("btnOff").classList.remove("opacity-low");
 
-            activateIsland("Auto Mode", "Loading Ad...", "fas fa-sync", true, false);
+            // ৬ সেকেন্ড কাউন্টডাউন শুরু ও ডাইনামিক আইল্যান্ড আপডেট
+            activateIsland("Auto Mode", "Refresh in 6s", "fas fa-sync", true, true);
+            startCountdownAndReload();
 
-            triggerAd(
-                () => {
-                    if(!isAutoActive) return;
-                    activateIsland("Auto Mode", "Next Ad in...", "fas fa-sync", true, true);
-                    startCountdown();
-                },
-                () => {
-                    if(!isAutoActive) return;
-                    activateIsland("Auto Mode", "Retry in...", "fas fa-exclamation-circle", false, true);
-                    startCountdown();
-                }
-            );
+            // অ্যাড ট্রিপার করা
+            triggerAd();
         }
 
         function enableAutoMode() {
-            if (isAdShowing) return;
             isAutoActive = true;
             localStorage.setItem('bot_auto_active', 'true');
             startAutoLoopProcess();
@@ -300,11 +291,14 @@
             document.getElementById("btnOff").classList.add("opacity-low");
         }
 
-        // 6. কাউন্টডাউন টাইমার (শুধু অটো মোডের জন্য)
-        function startCountdown() {
+        // 6. ৬ সেকেন্ডের কাউন্টডাউন ও অটো পেজ রিফ্রেশ ফাংশন
+        function startCountdownAndReload() {
             clearInterval(countdownInterval);
-            timeLeft = 10;
+            timeLeft = 6;
             
+            const timerDisplay = document.getElementById("timerDisplay");
+            if (timerDisplay) timerDisplay.innerText = timeLeft;
+
             countdownInterval = setInterval(() => {
                 if(!isAutoActive) {
                     clearInterval(countdownInterval);
@@ -315,9 +309,10 @@
                 const timerDisplay = document.getElementById("timerDisplay");
                 if(timerDisplay) timerDisplay.innerText = timeLeft;
 
+                // ৬ সেকেন্ড শেষ হলে পেজ রিফ্রেশ নিবে
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    startAutoLoopProcess();
+                    window.location.reload(); // পেজ রিফ্রেশ হবে
                 }
             }, 1000);
         }
